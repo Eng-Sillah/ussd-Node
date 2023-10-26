@@ -1,12 +1,12 @@
-import express from 'express';
-import { json, urlencoded } from 'body-parser';
+const express = require('express');
+const bodyParser = require('body-parser');
 
 const app = express();
 const PORT = process.env.PORT || 10000;
 
 // Set up middleware
-app.use(json());
-app.use(urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // Handle USSD POST request
 app.post('/', (req, res) => {
