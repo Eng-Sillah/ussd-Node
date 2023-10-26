@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const app = express();
+const PORT = process.env.PORT || 3030;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -40,3 +41,7 @@ app.post('/ussd', (req, res) => {
     res.set('Content-Type: text/plain');
     res.send(response);
 });
+
+app.listen(PORT, () => {
+    console.log(`server started on port ${PORT}`);
+  });
