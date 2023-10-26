@@ -1,15 +1,15 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+import express from 'express';
+import { json, urlencoded } from 'body-parser';
 
 const app = express();
 const PORT = process.env.PORT || 10000;
 
 // Set up middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(json());
+app.use(urlencoded({ extended: false }));
 
 // Handle USSD POST request
-app.post('/ussd', (req, res) => {
+app.post('/', (req, res) => {
     // Read the variables sent via POST from our API
     const { sessionId, serviceCode, phoneNumber, text } = req.body;
 
