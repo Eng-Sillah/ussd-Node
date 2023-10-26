@@ -33,7 +33,7 @@ app.post('/ussd', (req, res) => {
     res.send(response);
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3030;
 app.listen(PORT, () => {
     console.log(`USSD app is running on port ${PORT}`);
 });
