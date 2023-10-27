@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -27,7 +28,7 @@ function removeDataFromSession(sessionId) {
 }
 
 // Handle USSD POST request
-app.post('/', (req, res) => {
+app.post('/', async (req, res) => {
     // Read the variables sent via POST from our API
     const { sessionId, serviceCode, phoneNumber, text } = req.body;
 
@@ -48,11 +49,19 @@ app.post('/', (req, res) => {
 1. USDC Wallet Balance
 2. SOL Balance
 0. Back`;
-    } else if (text === '1*1') {
+    }   else if (text === '1*1') {
         // Fetch all token balances based on the user's phone number
-        // You can implement the logic here or call an API
-        // For now, we'll assume a successful request
-        response = 'END Your request is successful. You will receive a confirmation by SMS.';
+        try {
+            const apiUrl = `https://mocha-api.vercel.app/api/balance?phone=${phoneNumber}&display=SMS`;
+            const apiResponse = await axios.get(apiUrl);
+            const tokenBalances = apiResponse.data;
+
+            // You can process the token balances and set the response accordingly
+            response = "END Your request is successful. You will receive a confirmation by SMS.";
+        } catch (error) {
+            console.error(error);
+            response = "END An error occurred while fetching balances.";
+        }
     } else if (text.startsWith('1*1*')) {
         // This checks if text starts with "1*1*"
         const pin = text.substr(4); // Extract the part of the string after "1*1*"
@@ -97,33 +106,23 @@ app.post('/', (req, res) => {
                 response = 'CON Enter the recipient\'s wallet address or phone number';
             }
         }
-    } else if (text.startsWith(`2*1*${amount}`)) {
+    } else if (text.startsWith('2*1*1*')) {
+        // User entered recipient's wallet address or phone number
+        const recipient = text;
         const sessionData = getDataFromSession(sessionId);
-    
+
         if (sessionData) {
             const currency = sessionData.currency;
             const amount = sessionData.amount;
-    
-            // Check if the user is confirming with a variable mobile number
-            const regex = /^2\*1\*1\*\d+$/; // Check if it starts with '2*1*1*' followed by one or more digits
-            if (regex.test(text)) {
-                // Extract the recipient's mobile number
-                const recipient = text.split('2*1*1*')[1];
-                
-                // You can proceed with the transfer logic here using currency, amount, and the recipient's mobile number
-                // Once the transfer is successful, send a confirmation message
-                response = `END Your ${currency} ${amount} has been transferred to ${recipient}. Thank you!`;
-    
-                // Clear the session data
-                removeDataFromSession(sessionId);
-            } else {
-                // User's input didn't match the expected format; you can handle it accordingly
-                response = 'END Invalid input format. Transaction canceled.';
-                removeDataFromSession(sessionId);
-            }
+
+            // You can proceed with the transfer logic here using currency, amount, and recipient
+            // Once the transfer is successful, send a confirmation message
+            response = `END Your ${currency} ${amount} has been transferred to ${recipient}. Thank you!`;
+
+            // Clear the session data
+            removeDataFromSession(sessionId);
         }
-    }
-     else if (text === '3') {
+    } else if (text === '3') {
         // Business logic for the Second level response
         response = `CON Exchange:
 1. USDC to Orange Money
