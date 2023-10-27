@@ -98,22 +98,32 @@ app.post('/', (req, res) => {
             }
         }
     } else if (text.startsWith('2*1*1*')) {
-        // User entered recipient's wallet address or phone number
-        const recipient = text;
         const sessionData = getDataFromSession(sessionId);
-
+    
         if (sessionData) {
             const currency = sessionData.currency;
             const amount = sessionData.amount;
-
-            // You can proceed with the transfer logic here using currency, amount, and recipient
-            // Once the transfer is successful, send a confirmation message
-            response = `END Your ${currency} ${amount} has been transferred to ${recipient}. Thank you!`;
-
-            // Clear the session data
-            removeDataFromSession(sessionId);
+    
+            // Check if the user is confirming with a variable mobile number
+            const regex = /^2\*1\*1\*\d+$/; // Check if it starts with '2*1*1*' followed by one or more digits
+            if (regex.test(text)) {
+                // Extract the recipient's mobile number
+                const recipient = text.split('2*1*1*')[1];
+                
+                // You can proceed with the transfer logic here using currency, amount, and the recipient's mobile number
+                // Once the transfer is successful, send a confirmation message
+                response = `END Your ${currency} ${amount} has been transferred to ${recipient}. Thank you!`;
+    
+                // Clear the session data
+                removeDataFromSession(sessionId);
+            } else {
+                // User's input didn't match the expected format; you can handle it accordingly
+                response = 'END Invalid input format. Transaction canceled.';
+                removeDataFromSession(sessionId);
+            }
         }
-    } else if (text === '3') {
+    }
+     else if (text === '3') {
         // Business logic for the Second level response
         response = `CON Exchange:
 1. USDC to Orange Money
