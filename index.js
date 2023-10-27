@@ -97,7 +97,7 @@ app.post('/', (req, res) => {
                 response = 'CON Enter the recipient\'s wallet address or phone number';
             }
         }
-    } else if (text.startsWith('2*1*1*')) {
+    } else if (text.startsWith(`2*1*${amount}`)) {
         const sessionData = getDataFromSession(sessionId);
     
         if (sessionData) {
